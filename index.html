@@ -1,0 +1,328 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Sasua's Birthday Countdown</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Google Fonts: Playfair Display & Inter -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:ital,wght@0,500;0,600;0,700;1,400;1,600&display=swap" rel="stylesheet">
+    <!-- FontAwesome for icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Canvas Confetti CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                        serif: ['Playfair Display', 'serif'],
+                    },
+                    colors: {
+                        roseGold: {
+                            50: '#fdf8f6',
+                            100: '#fbeee9',
+                            200: '#f5dcd3',
+                            300: '#eac0b2',
+                            400: '#df9c87',
+                            500: '#d1785e',
+                            600: '#b85e44',
+                            700: '#9b4b35',
+                            800: '#7e3d2d',
+                            900: '#683327',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            -webkit-tap-highlight-color: transparent;
+        }
+        .serif-font {
+            font-family: 'Playfair Display', serif;
+        }
+        /* Floating hearts background animation */
+        @keyframes floatUp {
+            0% {
+                transform: translateY(105vh) scale(0.5);
+                opacity: 0;
+            }
+            20% {
+                opacity: 0.7;
+            }
+            80% {
+                opacity: 0.7;
+            }
+            100% {
+                transform: translateY(-10vh) scale(1.2);
+                opacity: 0;
+            }
+        }
+        .floating-heart {
+            position: absolute;
+            bottom: -20px;
+            color: rgba(223, 156, 135, 0.35);
+            animation: floatUp 8s infinite linear;
+            user-select: none;
+            pointer-events: none;
+        }
+        /* Glassmorphism card style optimized for mobile */
+        .glass-card {
+            background: rgba(255, 255, 255, 0.8);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid rgba(255, 255, 255, 0.7);
+            box-shadow: 0 15px 35px rgba(104, 51, 39, 0.07);
+        }
+        /* Pulse glow effect */
+        @keyframes softGlow {
+            0%, 100% { box-shadow: 0 0 20px rgba(209, 120, 94, 0.25); }
+            50% { box-shadow: 0 0 35px rgba(209, 120, 94, 0.5); }
+        }
+        .glow-box {
+            animation: softGlow 4s infinite ease-in-out;
+        }
+    </style>
+</head>
+<body class="bg-gradient-to-br from-rose-50 via-rose-100 to-rose-200 text-rose-950 min-h-screen relative overflow-x-hidden selection:bg-rose-300 selection:text-rose-900 flex flex-col justify-between">
+
+    <!-- Floating Background Hearts Container -->
+    <div id="hearts-container" class="absolute inset-0 overflow-hidden pointer-events-none z-0"></div>
+
+    <!-- Main App Container - Fully Responsive & Centered -->
+    <div class="relative z-10 flex flex-col min-h-screen justify-between p-3 sm:p-6 md:p-8 max-w-2xl w-full mx-auto">
+        
+        <!-- Header -->
+        <header class="text-center pt-4 sm:pt-6 pb-2">
+            <div class="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-white/70 backdrop-blur-md border border-rose-200 text-rose-700 text-xs sm:text-sm font-medium mb-3 shadow-sm">
+                <i class="fa-solid fa-heart text-rose-500 animate-pulse"></i>
+                <span>Special Countdown for Sasua</span>
+            </div>
+            <h1 class="serif-font text-3xl sm:text-5xl md:text-6xl font-bold tracking-tight text-rose-950 mb-2 drop-shadow-sm px-2">
+                Sasua's Birthday
+            </h1>
+            <p id="header-subtitle" class="text-rose-800 text-sm sm:text-base md:text-lg font-light italic max-w-md mx-auto px-4 leading-relaxed">
+                Counting every second until the most special day of the year. July 20th ✨
+            </p>
+        </header>
+
+        <!-- Main Content Area -->
+        <main class="flex-1 flex flex-col items-center justify-center my-4 gap-5 sm:gap-6 w-full">
+            
+            <!-- Countdown Timer Card -->
+            <div class="glass-card glow-box rounded-3xl p-4 sm:p-8 w-full text-center transition-all duration-500">
+                
+                <!-- Normal Countdown View -->
+                <div id="countdown-wrapper">
+                    <h2 class="text-[11px] sm:text-xs uppercase tracking-widest text-rose-600 font-semibold mb-4 sm:mb-6">
+                        Time Until July 20th
+                    </h2>
+                    
+                    <div class="grid grid-cols-2 sm:grid-cols-4 gap-2.5 sm:gap-4 mb-6 sm:mb-8">
+                        <!-- Days -->
+                        <div class="bg-white/90 rounded-2xl p-3 sm:p-4 shadow-sm border border-rose-100 flex flex-col items-center justify-center">
+                            <span id="days" class="serif-font text-3xl sm:text-4xl md:text-5xl font-bold text-rose-900">00</span>
+                            <span class="text-[10px] sm:text-xs uppercase tracking-wider text-rose-500 font-medium mt-1">Days</span>
+                        </div>
+                        <!-- Hours -->
+                        <div class="bg-white/90 rounded-2xl p-3 sm:p-4 shadow-sm border border-rose-100 flex flex-col items-center justify-center">
+                            <span id="hours" class="serif-font text-3xl sm:text-4xl md:text-5xl font-bold text-rose-900">00</span>
+                            <span class="text-[10px] sm:text-xs uppercase tracking-wider text-rose-500 font-medium mt-1">Hours</span>
+                        </div>
+                        <!-- Minutes -->
+                        <div class="bg-white/90 rounded-2xl p-3 sm:p-4 shadow-sm border border-rose-100 flex flex-col items-center justify-center">
+                            <span id="minutes" class="serif-font text-3xl sm:text-4xl md:text-5xl font-bold text-rose-900">00</span>
+                            <span class="text-[10px] sm:text-xs uppercase tracking-wider text-rose-500 font-medium mt-1">Minutes</span>
+                        </div>
+                        <!-- Seconds -->
+                        <div class="bg-white/90 rounded-2xl p-3 sm:p-4 shadow-sm border border-rose-100 flex flex-col items-center justify-center">
+                            <span id="seconds" class="serif-font text-3xl sm:text-4xl md:text-5xl font-bold text-rose-900">00</span>
+                            <span class="text-[10px] sm:text-xs uppercase tracking-wider text-rose-500 font-medium mt-1">Seconds</span>
+                        </div>
+                    </div>
+
+                    <!-- Target Date Info -->
+                    <div class="flex items-center justify-center gap-2 text-rose-700 text-xs sm:text-sm font-medium bg-rose-100/60 py-2 px-3.5 rounded-xl max-w-[240px] sm:max-w-xs mx-auto">
+                        <i class="fa-regular fa-calendar-days text-rose-500"></i>
+                        <span id="target-date-display">July 20, 2026</span>
+                    </div>
+                </div>
+
+                <!-- Birthday Celebration View (Shown on July 20th) -->
+                <div id="celebration-wrapper" class="hidden py-4 sm:py-6">
+                    <div class="inline-block p-3 sm:p-4 bg-rose-500 text-white rounded-full text-3xl sm:text-4xl mb-3 shadow-lg animate-bounce">
+                        🎉
+                    </div>
+                    <h2 class="serif-font text-2xl sm:text-4xl font-bold text-rose-900 mb-2">
+                        Happy Birthday, Sasua! 🎂💖
+                    </h2>
+                    <p class="text-rose-800 text-sm sm:text-base max-w-sm mx-auto mb-5 leading-relaxed px-2">
+                        Today is all about you! Wishing you the happiest birthday filled with endless smiles, love, and sweet moments.
+                    </p>
+                    <button onclick="triggerConfettiBurst()" class="bg-gradient-to-r from-rose-500 to-rose-600 active:from-rose-600 active:to-rose-700 text-white font-medium text-sm sm:text-base px-6 py-3 rounded-xl shadow-md transition-all transform active:scale-95 touch-manipulation">
+                        <i class="fa-solid fa-wand-magic-sparkles mr-2"></i> Celebrate Again!
+                    </button>
+                </div>
+            </div>
+
+            <!-- Love Note / Reason Generator Card -->
+            <div class="glass-card rounded-3xl p-5 sm:p-7 w-full text-center shadow-lg border border-white/80">
+                <div class="flex items-center justify-between mb-3">
+                    <span class="text-[11px] sm:text-xs uppercase tracking-widest text-rose-600 font-semibold flex items-center gap-1.5">
+                        <i class="fa-solid fa-envelope-open-text text-rose-500"></i> Reasons Why You're Amazing
+                    </span>
+                    <span id="note-counter" class="text-[11px] sm:text-xs text-rose-400 font-medium">Note 1 of 10</span>
+                </div>
+                
+                <div class="min-h-[90px] sm:min-h-[100px] flex items-center justify-center px-2">
+                    <p id="love-note-text" class="serif-font text-lg sm:text-xl text-rose-950 italic leading-relaxed">
+                        "Your smile instantly brightens up even my cloudiest days."
+                    </p>
+                </div>
+
+                <div class="mt-4 sm:mt-5 flex flex-row items-center justify-center gap-2 sm:gap-3">
+                    <button onclick="nextLoveNote()" class="flex-1 bg-white active:bg-rose-50 text-rose-800 border border-rose-200 font-medium text-xs sm:text-sm py-3 px-3 rounded-xl shadow-sm transition-all flex items-center justify-center gap-1.5 transform active:scale-95 touch-manipulation">
+                        <i class="fa-solid fa-shuffle text-rose-500"></i> Another Reason
+                    </button>
+                    <button onclick="triggerConfettiBurst()" class="flex-1 bg-rose-900 active:bg-rose-950 text-white font-medium text-xs sm:text-sm py-3 px-3 rounded-xl shadow-sm transition-all flex items-center justify-center gap-1.5 transform active:scale-95 touch-manipulation">
+                        <i class="fa-solid fa-heart text-rose-400"></i> Send Love
+                    </button>
+                </div>
+            </div>
+
+        </main>
+
+        <!-- Footer -->
+        <footer class="text-center py-3 text-xs text-rose-700/80 border-t border-rose-200/50 mt-4">
+            <p>Made with endless love for <span class="font-semibold text-rose-900">Sasua</span> 💕</p>
+        </footer>
+
+    </div>
+
+    <!-- JavaScript Logic -->
+    <script>
+        // Array of sweet love notes for Sasua
+        const loveNotes = [
+            "Your smile instantly brightens up even my cloudiest days.",
+            "You have the kindest heart and the most beautiful soul, Sasua.",
+            "Every moment spent with you feels like a wonderful gift.",
+            "Your laugh is my absolute favorite sound in the entire world.",
+            "You inspire me every single day to be the best version of myself.",
+            "Being with you feels like home, no matter where we are.",
+            "Your creativity and passion in everything you do amazes me.",
+            "Even the most ordinary day becomes magical when I'm with you.",
+            "I love the way your eyes light up when you talk about things you love.",
+            "You are my favorite thought in the morning and my last thought at night."
+        ];
+
+        let currentNoteIndex = 0;
+
+        // Display initial love note
+        function updateLoveNoteDisplay() {
+            const noteEl = document.getElementById('love-note-text');
+            const counterEl = document.getElementById('note-counter');
+            noteEl.style.opacity = 0;
+            setTimeout(() => {
+                noteEl.textContent = `"${loveNotes[currentNoteIndex]}"`;
+                noteEl.style.opacity = 1;
+                counterEl.textContent = `Note ${currentNoteIndex + 1} of ${loveNotes.length}`;
+            }, 150);
+        }
+
+        function nextLoveNote() {
+            currentNoteIndex = (currentNoteIndex + 1) % loveNotes.length;
+            updateLoveNoteDisplay();
+        }
+
+        // Floating Hearts Generator optimized for mobile performance
+        function createFloatingHearts() {
+            const container = document.getElementById('hearts-container');
+            const heartIcons = ['❤️', '💖', '💗', '💓', '✨', '🌸'];
+            
+            setInterval(() => {
+                if (container.childElementCount > 18) return; // Limit active hearts for smooth mobile performance
+                const heart = document.createElement('div');
+                heart.className = 'floating-heart';
+                heart.innerHTML = heartIcons[Math.floor(Math.random() * heartIcons.length)];
+                heart.style.left = Math.random() * 100 + '%';
+                heart.style.fontSize = (Math.random() * 14 + 12) + 'px';
+                heart.style.animationDuration = (Math.random() * 4 + 6) + 's';
+                container.appendChild(heart);
+
+                setTimeout(() => {
+                    heart.remove();
+                }, 10000);
+            }, 800);
+        }
+
+        // Confetti Burst Trigger
+        function triggerConfettiBurst() {
+            confetti({
+                particleCount: 80,
+                spread: 70,
+                origin: { y: 0.6 },
+                colors: ['#d1785e', '#f5dcd3', '#eac0b2', '#b85e44', '#ff758c']
+            });
+        }
+
+        // Countdown Calculator Logic
+        function updateCountdown() {
+            const now = new Date();
+            let year = now.getFullYear();
+            
+            // Birthday is July 20th (Month index 6 is July)
+            let birthday = new Date(year, 6, 20, 0, 0, 0);
+
+            // If July 20th has already passed this year, target next year's July 20th
+            if (now.getTime() > birthday.getTime()) {
+                birthday = new Date(year + 1, 6, 20, 0, 0, 0);
+            }
+
+            document.getElementById('target-date-display').textContent = `July 20, ${birthday.getFullYear()}`;
+
+            const diff = birthday.getTime() - now.getTime();
+
+            // Check if it's birthday today (within 24 hours or exactly reached)
+            const isBirthdayToday = (now.getMonth() === 6 && now.getDate() === 20);
+
+            if (isBirthdayToday || diff <= 0) {
+                showBirthdayCelebration();
+                return;
+            }
+
+            const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+            const hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+            const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+            const seconds = Math.floor((diff % (1000 * 60)) / 1000);
+
+            document.getElementById('days').textContent = String(days).padStart(2, '0');
+            document.getElementById('hours').textContent = String(hours).padStart(2, '0');
+            document.getElementById('minutes').textContent = String(minutes).padStart(2, '0');
+            document.getElementById('seconds').textContent = String(seconds).padStart(2, '0');
+        }
+
+        function showBirthdayCelebration() {
+            document.getElementById('countdown-wrapper').classList.add('hidden');
+            document.getElementById('celebration-wrapper').classList.remove('hidden');
+            document.getElementById('header-subtitle').textContent = "Today is Sasua's special day! Happy Birthday! 🎉";
+            triggerConfettiBurst();
+        }
+
+        // Initialize on window load
+        window.onload = function() {
+            createFloatingHearts();
+            updateLoveNoteDisplay();
+            updateCountdown();
+            // Run countdown interval every second
+            setInterval(updateCountdown, 1000);
+        };
+    </script>
+</body>
+</html>
